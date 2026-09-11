@@ -1,5 +1,155 @@
-<html>
-  <body>
-    <h1>にんじん!</h1>
-  </body>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>絶対に押せないボタン</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            color: white;
+            user-select: none;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        /* 逃げるボタンのスタイル */
+        #escape-button {
+            position: absolute;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(255, 65, 108, 0.4);
+            transition: transform 0.1s ease-out, box-shadow 0.2s;
+            outline: none;
+            will-change: left, top;
+        }
+
+        #escape-button:active {
+            transform: scale(0.95);
+        }
+
+        /* メッセージポップアップ */
+        #message {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffee55;
+            min-height: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>人類には押せないボタン</h1>
+    <p>もしクリックできたら、あなたの勝ちです。</p>
+
+    <!-- 逃げ回るターゲット -->
+    <button id="escape-button">ここをクリック</button>
+
+    <div id="message"></div>
+
+    <script>
+        const button = document.getElementById('escape-button');
+        const message = document.getElementById('message');
+        
+        // 煽り文句のリスト
+        const roasts = [
+            "おっと、手が滑りましたか？ 😜",
+            "おっそーい！ 🐢",
+            "本気出してくださいよ！ 🔥",
+            "視力悪いんですか？ 👀",
+            "かすりもしませんね！ 😎",
+            "そこじゃないです！ 🤣"
+        ];
+
+        // 初期位置を画面中央に設定
+        window.onload = () => {
+            moveButtonContainer();
+        };
+
+        function moveButtonContainer() {
+            const padding = 100;
+            const x = Math.random() * (window.innerWidth - button.offsetWidth - padding * 2) + padding;
+            const y = Math.random() * (window.innerHeight - button.offsetHeight - padding * 2) + padding;
+            button.style.left = `${x}px`;
+            button.style.top = `${y}px`;
+        }
+
+        // マウスが近づいた時の処理（PC用）
+        button.addEventListener('mouseover', (e) => {
+            escape(e.clientX, e.clientY);
+        });
+
+        // タッチされそうになった時の処理（スマホ用）
+        button.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // タップ判定を無効化して即逃げる
+            const touch = e.touches[0];
+            escape(touch.clientX, touch.clientY);
+        });
+
+        // 逃走ロジック
+        function escape(mouseX, mouseY) {
+            const btnRect = button.getBoundingClientRect();
+            const btnCenterX = btnRect.left + btnRect.width / 2;
+            const btnCenterY = btnRect.top + btnRect.height / 2;
+
+            // マウスとボタンの中心点との距離
+            const angle = Math.atan2(btnCenterY - mouseY, btnCenterX - mouseX);
+            
+            // 逃げる距離
+            const distance = 150; 
+
+            // 新しい座標の計算
+            let newX = btnRect.left + Math.cos(angle) * distance;
+            let newY = btnRect.top + Math.sin(angle) * distance;
+
+            // 画面の外に飛び出さないためのガード
+            const padding = 40;
+            if (newX < padding) newX = window.innerWidth - btnRect.width - padding;
+            if (newX > window.innerWidth - btnRect.width - padding) newX = padding;
+            if (newY < padding) newY = window.innerHeight - btnRect.height - padding;
+            if (newY > window.innerHeight - btnRect.height - padding) newY = padding;
+
+            // ボタンを移動
+            button.style.left = `${newX}px`;
+            button.style.top = `${newY}px`;
+
+            // ランダムに煽り文句を表示
+            const randomRoast = roasts[Math.floor(Math.random() * roasts.length)];
+            message.innerText = randomRoast;
+        }
+
+        // 万が一、チートやバグでクリックできた場合の処理
+        button.addEventListener('click', () => {
+            alert('🎉 嘘だろ！？クリックされるなんて…あなたの勝ちです！ 🏆');
+        });
+    </script>
+</body>
 </html>
